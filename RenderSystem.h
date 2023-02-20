@@ -12,6 +12,7 @@ public:
 	bool compileVertexShader(const wchar_t* file_name, const char* entry_point_name, void** shader_byte_code, size_t* byte_code_size);
 	bool compilePixelShader(const wchar_t* file_name, const char* entry_point_name, void** shader_byte_code, size_t* byte_code_size);
 	void releaseCompiledShader();
+	void setRasterizerState(bool front_cull);
 
 public:
 	SCPtr createSwapChain(HWND hwnd, UINT width, UINT height);
@@ -21,6 +22,8 @@ public:
 	VSPtr createVertexShader(const void* shader_byte_code, size_t byte_code_size);
 	PSPtr createPixelShader(const void* shader_byte_code, size_t byte_code_size);
 	CBPtr createConstantBuffer(void* buffer, UINT buffer_size);
+private:
+	void RasterizerState();
 
 private:
 	DCPtr m_imm_device_context;
@@ -37,8 +40,8 @@ private:
 
 private:
 	ID3DBlob* m_blob = nullptr;
-
-
+	ID3D11RasterizerState* m_cull_front = nullptr;
+	ID3D11RasterizerState* m_cull_back = nullptr;
 	ID3DBlob* m_vsblob = nullptr;
 	ID3DBlob* m_psblob = nullptr;
 	ID3D11VertexShader* m_vs = nullptr;

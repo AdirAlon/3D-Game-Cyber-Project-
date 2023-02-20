@@ -29,9 +29,10 @@ float4 psmain(PS_INPUT input) : SV_TARGET
 	float ks = 1.0;
 	float3 is = float3(1.0, 1.0, 1.0);
 	float3 reflected = reflect(m_light_direction.xyz, input.normal);
-	float shine = 30.0;
+	float shine = 100.0;
 	float s_amount = pow(max(0.0, dot(reflected, input.direction_cam)), shine);
 	float3 s_light = ks * s_amount * is;
 	float3 final = a_light + d_light + s_light;
 	return float4(final, 1.0);
+	//return Texture.Sample(TextureSampler,input.texcoord);
 }

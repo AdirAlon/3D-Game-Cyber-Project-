@@ -17,6 +17,10 @@ public:
 	GameWindow();
 	~GameWindow();
 	void update();
+	void drawMesh(const MPtr& mesh, const VSPtr& vertex_shader, const PSPtr& pixel_shader, const CBPtr& constant_buffer, const TPtr& texture);
+	void updateCamera();
+	void updateModel();
+	void updateSky();
 
 	// Inherited via Window
 	virtual void onCreate() override;
@@ -30,10 +34,14 @@ private:
 	VBPtr m_vertex_buffer;
 	VSPtr m_vertex_shader;
 	PSPtr m_pixel_shader;
-	CBPtr m_constant_buffer;
+	PSPtr m_sky_pixel_shader;
+	CBPtr m_constant_buffer; 
+	CBPtr m_sky_constant_buffer;
 	IBPtr m_index_buffer;
 	TPtr m_cobble_tex;
+	TPtr m_sky_tex;
 	MPtr m_mesh;
+	MPtr m_sky_sphere;
 
 private:
 	float m_old_delta;
@@ -46,6 +54,8 @@ private:
 	float m_light_rotaion_y = 0.0f;
 	float m_cube_scale = 1;
 	Matrix4x4 m_world_camera;
+	Matrix4x4 m_view_camera;
+	Matrix4x4 m_projection_camera;
 	float m_forward = 0.0f;
 	float m_sideward = 0.0f;
 

@@ -202,5 +202,8 @@
     <FxCompile Include="VertexMeshShader.hlsl">
       <Filter>Game</Filter>
     </FxCompile>
+    <FxCompile Include="SkyShader.hlsl">
+      <Filter>Game</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
