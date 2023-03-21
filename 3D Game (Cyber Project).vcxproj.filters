@@ -52,6 +52,9 @@
     <Filter Include="GameEngine\GraphicsEngine\Rendering\ResourceManager\MeshManager">
       <UniqueIdentifier>{ea63fd81-2ae5-4080-a5e8-edc3d90c08ce}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Shaders">
+      <UniqueIdentifier>{037eb342-bbae-4245-b4d3-1c6176def98d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -193,17 +196,23 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="VertexShader.hlsl">
-      <Filter>Game</Filter>
-    </FxCompile>
     <FxCompile Include="PixelShader.hlsl">
-      <Filter>Game</Filter>
-    </FxCompile>
-    <FxCompile Include="VertexMeshShader.hlsl">
-      <Filter>Game</Filter>
+      <Filter>Game\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="SkyShader.hlsl">
-      <Filter>Game</Filter>
+      <Filter>Game\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="VertexShader.hlsl">
+      <Filter>Game\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="VertexMeshShader.hlsl">
+      <Filter>Game\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PLVS.hlsl">
+      <Filter>Game\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PLPS.hlsl">
+      <Filter>Game\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

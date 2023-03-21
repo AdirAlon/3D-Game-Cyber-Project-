@@ -15,8 +15,8 @@ public:
 	void setPixelShader(const PSPtr& pixel_shader);
 	void setConstantBuffer(const VSPtr& vertex_shader, const CBPtr& buffer);
 	void setConstantBuffer(const PSPtr& pixel_shader, const CBPtr& buffer);
-	void setTexture(const VSPtr& vertex_shader, const TPtr& texture);
-	void setTexture(const PSPtr& pixel_shader, const TPtr& texture);
+	void setTexture(const VSPtr& vertex_shader, const TPtr* texture, unsigned int tex_num);
+	void setTexture(const PSPtr& pixel_shader, const TPtr* texture, unsigned int tex_num);
 	void setIndexBuffer(const IBPtr& index_buffer);
 	void drawIndexedTriangleList(UINT index_count, UINT start_vertex_index, UINT start_index_location);
 	~DeviceContext();

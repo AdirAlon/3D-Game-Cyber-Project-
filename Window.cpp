@@ -1,6 +1,5 @@
 #include "Window.h"
 #include <exception>
-Window* window = nullptr;
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
@@ -24,6 +23,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		Window* window = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 		if (window)
 			window->onFocus();
+		break;
+	}
+
+	case WM_SIZE:
+	{
+		Window* window = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+		if (window) window->onSize();
 		break;
 	}
 
@@ -116,6 +122,18 @@ RECT Window::getClientWindowRect()
 	return rc;
 }
 
+RECT Window::getScreenSize()
+{
+	RECT rc;
+	rc.right = ::GetSystemMetrics(SM_CXSCREEN);
+	rc.bottom = ::GetSystemMetrics(SM_CYSCREEN);
+	return rc;
+}
+
+void Window::onUpdate()
+{
+}
+
 void Window::onDestroy()
 {
 	m_running = false;
@@ -126,5 +144,9 @@ void Window::onFocus()
 }
 
 void Window::onKillFocus()
+{
+}
+
+void Window::onSize()
 {
 }

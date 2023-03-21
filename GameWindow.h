@@ -17,7 +17,8 @@ public:
 	GameWindow();
 	~GameWindow();
 	void update();
-	void drawMesh(const MPtr& mesh, const VSPtr& vertex_shader, const PSPtr& pixel_shader, const CBPtr& constant_buffer, const TPtr& texture);
+	void render();
+	void drawMesh(const MPtr& mesh, const VSPtr& vertex_shader, const PSPtr& pixel_shader, const CBPtr& constant_buffer, const TPtr* texture_list, unsigned int tex_num);
 	void updateCamera();
 	void updateModel();
 	void updateSky();
@@ -28,6 +29,7 @@ public:
 	virtual void onDestroy() override;
 	virtual void onFocus() override;
 	virtual void onKillFocus() override;
+	virtual void onSize() override;
 
 private:
 	SCPtr m_swap_chain;
@@ -39,7 +41,9 @@ private:
 	CBPtr m_sky_constant_buffer;
 	IBPtr m_index_buffer;
 	TPtr m_cobble_tex;
+	TPtr m_brick_tex;
 	TPtr m_sky_tex;
+	TPtr m_specular_tex;
 	MPtr m_mesh;
 	MPtr m_sky_sphere;
 
@@ -58,6 +62,12 @@ private:
 	Matrix4x4 m_projection_camera;
 	float m_forward = 0.0f;
 	float m_sideward = 0.0f;
+	float speed = 0.2f;
+	float jump = 0.0f;
+	bool game_state = false;
+	bool fullscreen = false;
+	float m_light_radius = 4.0f;
+
 
 public:
 	// Inherited via InputListener
