@@ -5,6 +5,7 @@
 #include "Matrix4x4.h"
 #include "InputSystem.h"
 #include "Mesh.h"
+#include <DirectXMath.h>
 
 struct vertex
 {
@@ -32,129 +33,35 @@ void GameWindow::onCreate()
 	InputSystem::get()->showCursor(false);
 
 	m_cobble_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\grass.jpg");
+	m_wall_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\wall.jpg");
 	m_brick_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\brick.png");
+	m_earth_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\earth_color.jpg");
 	m_sky_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\sky.jpg");
 	m_specular_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\earth_spec.jpg");
 	m_mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\scene.obj");
 	m_sky_sphere = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\sphere.obj");
+	m_torus_mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\torus.obj");
+	m_suzanne_mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\suzanne.obj");
+	m_plane_mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\plane.obj");
+
 	RECT rc = this->getClientWindowRect();
 	m_swap_chain = GraphicsEngine::get()->getRenderSystem()->createSwapChain(this->m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
 	
 	m_world_camera.setTranslation(Vector3D(0, 0, -1));
 
-	//vertex list[] =
-	//{
-		//{-0.5f, -0.5f, 0.0f},	  //V1
-		//{-0.5f, 0.5f, 0.0f},	  //V2
-		//{0.5f, 0.5f, 0.0f},	  //V3
+	m_material = GraphicsEngine::get()->createMaterial(L"PLVS.hlsl", L"PLPS.hlsl");
+	m_material->addTexture(m_brick_tex);
+	m_material->setCullMode(CULL_MODE_BACK);
+	m_sky_material = GraphicsEngine::get()->createMaterial(L"PLVS.hlsl", L"SkyShader.hlsl");
+	m_sky_material->addTexture(m_sky_tex);
+	m_sky_material->setCullMode(CULL_MODE_FRONT);
 
-		//{0.5f, 0.5f, 0.0f},	  //V4
-		//{0.5f, -0.5f, 0.0f},	  //V5
-		//{-0.5f, -0.5f, 0.0f}	  //V6
-	//};
-
-
-	/*Vector3D positions[] =
-	{
-		{Vector3D(-0.5f, -0.5f, -0.5f)},  //V1
-		{Vector3D(-0.5f, 0.5f, -0.5f)},	  //V2
-		{Vector3D(0.5f, 0.5f, -0.5f)},	  //V3
-		{Vector3D(0.5f, -0.5f, -0.5f)},	  //V4
-
-		{Vector3D(0.5f, -0.5f, 0.5f)},	  //V1
-		{Vector3D(0.5f, 0.5f, 0.5f)},	  //V2
-		{Vector3D(-0.5f, 0.5f, 0.5f)},	  //V3
-		{Vector3D(-0.5f, -0.5f, 0.5f)}	  //V4
-	};
-
-	Vector2D texcoords[] =
-	{
-		{Vector2D(0.0f, 0.0f)},   //V1
-		{Vector2D(0.0f, 1.0f)},	  //V2
-		{Vector2D(1.0f, 0.0f)},	  //V3
-		{Vector2D(1.0f, 1.0f)},	  //V4
-	};
-
-	vertex vertex_list[] =
-	{
-		{ positions[0], texcoords[1] },
-		{ positions[1], texcoords[0] },
-		{ positions[2], texcoords[2] },
-		{ positions[3], texcoords[3] },
-
-		{ positions[4], texcoords[1] },
-		{ positions[5], texcoords[0] },
-		{ positions[6], texcoords[2] },
-		{ positions[7], texcoords[3] },
-
-		{ positions[1], texcoords[1] },
-		{ positions[6], texcoords[0] },
-		{ positions[5], texcoords[2] },
-		{ positions[2], texcoords[3] },
-
-		{ positions[7], texcoords[1] },
-		{ positions[0], texcoords[0] },
-		{ positions[3], texcoords[2] },
-		{ positions[4], texcoords[3] },
-
-		{ positions[3], texcoords[1] },
-		{ positions[2], texcoords[0] },
-		{ positions[5], texcoords[2] },
-		{ positions[4], texcoords[3] },
-
-		{ positions[7], texcoords[1] },
-		{ positions[6], texcoords[0] },
-		{ positions[1], texcoords[2] },
-		{ positions[0], texcoords[3] },
-	};
-
-	
-	UINT list_size = ARRAYSIZE(vertex_list);
-
-	unsigned int index_list[] =
-	{
-		0, 1, 2,
-		2, 3, 0,
-
-		4, 5, 6,
-		6, 7, 4,
-
-		8, 9, 10,
-		10, 11, 8,
-
-		12, 13, 14,
-		14, 15, 12,
-
-		16, 17, 18,
-		18, 19, 16,
-
-		20, 21, 22,
-		22, 23, 20
-	};
-
-	UINT index_list_size = ARRAYSIZE(index_list);
-	m_index_buffer = GraphicsEngine::get()->getRenderSystem()->createIndexBuffer(index_list, index_list_size);*/
-
-	void* shader_byte_code = nullptr;
-	size_t size_shader = 0;
-
-	GraphicsEngine::get()->getRenderSystem()->compileVertexShader(L"PLVS.hlsl", "vsmain", &shader_byte_code, &size_shader);
-	m_vertex_shader = GraphicsEngine::get()->getRenderSystem()->createVertexShader(shader_byte_code, size_shader);
-	//m_vertex_buffer = GraphicsEngine::get()->getRenderSystem()->createVertexBuffer(vertex_list, sizeof(vertex), list_size, shader_byte_code, size_shader);
-	GraphicsEngine::get()->getRenderSystem()->releaseCompiledShader();
-
-	GraphicsEngine::get()->getRenderSystem()->compilePixelShader(L"PLPS.hlsl", "psmain", &shader_byte_code, &size_shader);
-	m_pixel_shader = GraphicsEngine::get()->getRenderSystem()->createPixelShader(shader_byte_code, size_shader);
-	GraphicsEngine::get()->getRenderSystem()->releaseCompiledShader();
-
-	GraphicsEngine::get()->getRenderSystem()->compilePixelShader(L"SkyShader.hlsl", "psmain", &shader_byte_code, &size_shader);
-	m_sky_pixel_shader = GraphicsEngine::get()->getRenderSystem()->createPixelShader(shader_byte_code, size_shader);
-	GraphicsEngine::get()->getRenderSystem()->releaseCompiledShader();
-
-	constant con;
-
-	m_constant_buffer = GraphicsEngine::get()->getRenderSystem()->createConstantBuffer(&con, sizeof(constant));
-	m_sky_constant_buffer = GraphicsEngine::get()->getRenderSystem()->createConstantBuffer(&con, sizeof(constant));
+	m_earth_material = GraphicsEngine::get()->createMaterial(m_material);
+	m_earth_material->addTexture(m_earth_tex);
+	m_earth_material->setCullMode(CULL_MODE_BACK);
+	m_b_material = GraphicsEngine::get()->createMaterial(m_material);
+	m_b_material->addTexture(m_wall_tex);
+	m_b_material->setCullMode(CULL_MODE_BACK);
 }
 
 void GameWindow::onUpdate()
@@ -177,7 +84,7 @@ GameWindow::~GameWindow()
 void GameWindow::update()
 {
 	updateCamera();
-	updateModel();
+	updateLight();
 	updateSky();
 }
 
@@ -189,17 +96,21 @@ void GameWindow::render()
 	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->setViewportSize(rc.right - rc.left, rc.bottom - rc.top);
 
 	update();
-	//sphere
-	GraphicsEngine::get()->getRenderSystem()->setRasterizerState(true);
-	TPtr tex_list[1];
-	tex_list[0] = m_sky_tex;
-	drawMesh(m_sky_sphere, m_vertex_shader, m_sky_pixel_shader, m_sky_constant_buffer, tex_list, 1);
+	drawMesh(m_sky_sphere, m_sky_material);
 
-	GraphicsEngine::get()->getRenderSystem()->setRasterizerState(false);
-	tex_list[0] = m_brick_tex;
+	for (int i = 0; i < 3; i++) {
+		updateModel(Vector3D(4, 2, -4 + 4 * i), m_earth_material);
+		drawMesh(m_sky_sphere, m_earth_material);
 
-	drawMesh(m_mesh, m_vertex_shader, m_pixel_shader, m_constant_buffer, tex_list, 1);
+		updateModel(Vector3D(-4, 2, -4 + 4 * i), m_b_material);
+		drawMesh(m_torus_mesh, m_b_material);
 
+		updateModel(Vector3D(0, 2, -4 + 4 * i), m_material);
+		drawMesh(m_suzanne_mesh, m_material);
+	}
+
+	updateModel(Vector3D(0, 0, 0), m_b_material);
+	drawMesh(m_plane_mesh, m_b_material);
 
 
 	m_swap_chain->present(true);
@@ -209,14 +120,9 @@ void GameWindow::render()
 	m_delta_time = (m_old_delta) ? ((m_new_delta - m_old_delta) / 1000.0f) : 0;
 }
 
-void GameWindow::drawMesh(const MPtr& mesh, const VSPtr& vertex_shader, const PSPtr& pixel_shader, const CBPtr& constant_buffer, const TPtr* texture_list, unsigned int tex_num)
+void GameWindow::drawMesh(const MPtr& mesh, const MTPtr& material)
 {
-	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->setConstantBuffer(vertex_shader, constant_buffer);
-	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->setConstantBuffer(pixel_shader, constant_buffer);
-
-	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->setVertexShader(vertex_shader);
-	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->setPixelShader(pixel_shader);
-	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->setTexture(pixel_shader, texture_list, tex_num);
+	GraphicsEngine::get()->setMaterial(material);
 	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->setVertexBuffer(mesh->getVertexBuffer());
 	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->setIndexBuffer(mesh->getIndexBuffer());
 	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->drawIndexedTriangleList(mesh->getIndexBuffer()->getSizeIndexList(), 0, 0);
@@ -250,27 +156,27 @@ void GameWindow::updateCamera()
 	m_projection_camera.setPerspectiveView(1.57f, ((float)width / (float)height), 0.1f, 100.0f);
 }
 
-void GameWindow::updateModel()
+void GameWindow::updateModel(Vector3D pos, const MTPtr& material)
 {
 	constant con;
 
 	Matrix4x4 m_light_rot;
 	m_light_rot.setIdentity();
 	m_light_rot.setRotaionY(m_light_rotaion_y);
-	m_light_rotaion_y += 1.57f * m_delta_time;
 	//con.m_world.setTranslation(Vector3D::lerp(Vector3D(-2, -2, 0), Vector3D(2, 2, 0), m_delta_position));
 
 	con.m_world.setIdentity();
+	con.m_world.setTranslation(pos);
 	con.m_view = m_view_camera;
 	con.m_projection = m_projection_camera;
 	con.m_cam_pos = m_world_camera.getTranslation();
 
 	float distance_origin = 1.0f;
-	con.m_light_pos = Vector4D(cos(m_light_rotaion_y) * distance_origin, 1.0f, sin(m_light_rotaion_y) * distance_origin, 1.0f);
+	con.m_light_pos = m_light_pos;
 	con.m_light_radius = m_light_radius;
 
 	con.m_light_direction = m_light_rot.getZDirection();
-	m_constant_buffer->update(GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext(), &con);
+	material->setData(&con, sizeof(constant));
 }
 
 void GameWindow::updateSky()
@@ -282,7 +188,14 @@ void GameWindow::updateSky()
 	con.m_view = m_view_camera;
 	con.m_projection = m_projection_camera;
 
-	m_sky_constant_buffer->update(GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext(), &con);
+	m_sky_material->setData(&con, sizeof(constant));
+}
+
+void GameWindow::updateLight()
+{
+	m_light_rotaion_y += 1.57f * m_delta_time;
+	float distance_origin = 3.0f;
+	m_light_pos = Vector4D(cos(m_light_rotaion_y) * distance_origin, 1.0f, sin(m_light_rotaion_y) * distance_origin, 1.0f);
 }
 
 void GameWindow::onDestroy()
@@ -364,7 +277,7 @@ void GameWindow::onKeyUp(int key)
 
 	if (key == 'V')
 	{
-		game_state = (game_state) ? false : true;
+		game_state = !(game_state);
 		InputSystem::get()->showCursor(!game_state);
 	}
 

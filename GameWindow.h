@@ -18,10 +18,11 @@ public:
 	~GameWindow();
 	void update();
 	void render();
-	void drawMesh(const MPtr& mesh, const VSPtr& vertex_shader, const PSPtr& pixel_shader, const CBPtr& constant_buffer, const TPtr* texture_list, unsigned int tex_num);
+	void drawMesh(const MPtr& mesh, const MTPtr& material);
 	void updateCamera();
-	void updateModel();
+	void updateModel(Vector3D pos, const MTPtr& material);
 	void updateSky();
+	void updateLight();
 
 	// Inherited via Window
 	virtual void onCreate() override;
@@ -42,10 +43,20 @@ private:
 	IBPtr m_index_buffer;
 	TPtr m_cobble_tex;
 	TPtr m_brick_tex;
+	TPtr m_wall_tex;
+	TPtr m_earth_tex;
 	TPtr m_sky_tex;
 	TPtr m_specular_tex;
 	MPtr m_mesh;
+	MPtr m_plane_mesh;
 	MPtr m_sky_sphere;
+	MPtr m_torus_mesh;
+	MPtr m_suzanne_mesh;
+	MTPtr m_material;
+	MTPtr m_b_material;
+	MTPtr m_e_material;
+	MTPtr m_sky_material;
+	MTPtr m_earth_material;
 
 private:
 	float m_old_delta;
@@ -67,6 +78,7 @@ private:
 	bool game_state = false;
 	bool fullscreen = false;
 	float m_light_radius = 4.0f;
+	Vector4D m_light_pos;
 
 
 public:
