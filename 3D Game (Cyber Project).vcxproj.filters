@@ -55,6 +55,9 @@
     <Filter Include="Game\Shaders">
       <UniqueIdentifier>{037eb342-bbae-4245-b4d3-1c6176def98d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameEngine\GraphicsEngine\Material">
+      <UniqueIdentifier>{d2b340b5-bd80-4544-bbe9-c1db5772a1da}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -113,6 +116,9 @@
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>GameEngine\GraphicsEngine\Rendering\ResourceManager\MeshManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>GameEngine\GraphicsEngine\Material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -193,6 +199,9 @@
     </ClInclude>
     <ClInclude Include="Vector2D.h">
       <Filter>GameEngine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>GameEngine\GraphicsEngine\Material</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
