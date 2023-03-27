@@ -18,9 +18,9 @@ public:
 	~GameWindow();
 	void update();
 	void render();
-	void drawMesh(const MPtr& mesh, const MTPtr& material);
+	void drawMesh(const MPtr& mesh, const std::vector<MTPtr>& material_list);
 	void updateCamera();
-	void updateModel(Vector3D pos, const MTPtr& material);
+	void updateModel(Vector3D pos, const std::vector<MTPtr>& material_list);
 	void updateSky();
 	void updateLight();
 
@@ -42,21 +42,31 @@ private:
 	CBPtr m_sky_constant_buffer;
 	IBPtr m_index_buffer;
 	TPtr m_cobble_tex;
-	TPtr m_brick_tex;
+	TPtr m_bricks_tex;
 	TPtr m_wall_tex;
 	TPtr m_earth_tex;
 	TPtr m_sky_tex;
 	TPtr m_specular_tex;
+	TPtr m_plane_tex;
+	TPtr m_barrel_tex;
+	TPtr m_brick_tex;
+	TPtr m_windows_tex;
+	TPtr m_wood_tex;
+	TPtr m_box_tex;
 	MPtr m_mesh;
 	MPtr m_plane_mesh;
 	MPtr m_sky_sphere;
-	MPtr m_torus_mesh;
-	MPtr m_suzanne_mesh;
+	MPtr m_house_mesh;
+	MPtr m_box_mesh;
 	MTPtr m_material;
-	MTPtr m_b_material;
-	MTPtr m_e_material;
+	MTPtr m_box_material;
 	MTPtr m_sky_material;
-	MTPtr m_earth_material;
+	MTPtr m_plane_material;
+	MTPtr m_barrel_material;
+	MTPtr m_brick_material;
+	MTPtr m_windows_material;
+	MTPtr m_wood_material;
+
 
 private:
 	float m_old_delta;
@@ -77,8 +87,9 @@ private:
 	float jump = 0.0f;
 	bool game_state = false;
 	bool fullscreen = false;
-	float m_light_radius = 4.0f;
+	float m_light_radius = 1000.0f;
 	Vector4D m_light_pos;
+	std::vector<MTPtr> m_material_list;
 
 
 public:

@@ -34,15 +34,25 @@ void GameWindow::onCreate()
 
 	m_cobble_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\grass.jpg");
 	m_wall_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\wall.jpg");
-	m_brick_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\brick.png");
+	m_bricks_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\brick.png");
 	m_earth_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\earth_color.jpg");
 	m_sky_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\sky.jpg");
+	m_plane_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\stone2.jpg");
 	m_specular_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\earth_spec.jpg");
-	m_mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\scene.obj");
 	m_sky_sphere = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\sphere.obj");
-	m_torus_mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\torus.obj");
-	m_suzanne_mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\suzanne.obj");
-	m_plane_mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\plane.obj");
+	m_plane_mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\terrain.obj");
+
+	m_box_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\wooden-box.jpg");
+	m_box_mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\box.obj");
+
+	//m_barrel_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\barrel.jpg");
+	//m_brick_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\house_brick.jpg");
+	//m_windows_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\house_windows.jpg");
+	//m_wood_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\house_wood.jpg");
+	//m_house_mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\house.obj");
+
+
+
 
 	RECT rc = this->getClientWindowRect();
 	m_swap_chain = GraphicsEngine::get()->getRenderSystem()->createSwapChain(this->m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
@@ -50,18 +60,39 @@ void GameWindow::onCreate()
 	m_world_camera.setTranslation(Vector3D(0, 0, -1));
 
 	m_material = GraphicsEngine::get()->createMaterial(L"PLVS.hlsl", L"PLPS.hlsl");
-	m_material->addTexture(m_brick_tex);
+	m_material->addTexture(m_bricks_tex);
 	m_material->setCullMode(CULL_MODE_BACK);
 	m_sky_material = GraphicsEngine::get()->createMaterial(L"PLVS.hlsl", L"SkyShader.hlsl");
 	m_sky_material->addTexture(m_sky_tex);
 	m_sky_material->setCullMode(CULL_MODE_FRONT);
 
-	m_earth_material = GraphicsEngine::get()->createMaterial(m_material);
-	m_earth_material->addTexture(m_earth_tex);
-	m_earth_material->setCullMode(CULL_MODE_BACK);
-	m_b_material = GraphicsEngine::get()->createMaterial(m_material);
-	m_b_material->addTexture(m_wall_tex);
-	m_b_material->setCullMode(CULL_MODE_BACK);
+	m_plane_material = GraphicsEngine::get()->createMaterial(m_material);
+	m_plane_material->addTexture(m_plane_tex);
+	m_plane_material->setCullMode(CULL_MODE_BACK);
+
+
+
+	//m_barrel_material = GraphicsEngine::get()->createMaterial(m_material);
+	//m_barrel_material->addTexture(m_barrel_tex);
+	//m_barrel_material->setCullMode(CULL_MODE_BACK);
+
+	//m_brick_material = GraphicsEngine::get()->createMaterial(m_material);
+	//m_brick_material->addTexture(m_brick_tex);
+	//m_brick_material->setCullMode(CULL_MODE_BACK);
+
+	//m_windows_material = GraphicsEngine::get()->createMaterial(m_material);
+	//m_windows_material->addTexture(m_windows_tex);
+	//m_windows_material->setCullMode(CULL_MODE_BACK);
+
+	//m_wood_material = GraphicsEngine::get()->createMaterial(m_material);
+	//m_wood_material->addTexture(m_wood_tex);
+	//m_wood_material->setCullMode(CULL_MODE_BACK);
+
+	m_box_material = GraphicsEngine::get()->createMaterial(m_sky_material);
+	m_box_material->addTexture(m_box_tex);
+	m_box_material->setCullMode(CULL_MODE_BACK);
+
+	m_material_list.reserve(32);
 }
 
 void GameWindow::onUpdate()
@@ -96,21 +127,53 @@ void GameWindow::render()
 	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->setViewportSize(rc.right - rc.left, rc.bottom - rc.top);
 
 	update();
-	drawMesh(m_sky_sphere, m_sky_material);
 
-	for (int i = 0; i < 3; i++) {
-		updateModel(Vector3D(4, 2, -4 + 4 * i), m_earth_material);
-		drawMesh(m_sky_sphere, m_earth_material);
+	//m_material_list.clear();
+	//m_material_list.push_back(m_barrel_material);
+	//m_material_list.push_back(m_brick_material);
+	//m_material_list.push_back(m_windows_material);
+	//m_material_list.push_back(m_wood_material);
+	//for (int i = 0; i < 3; i++) {
+	//	for (int j = 0; j < 3; j++) {
+	//		updateModel(Vector3D(-14.0f +14.0f * i, 0, -14.0f + 14.0f * j), m_material_list);
+	//		drawMesh(m_house_mesh, m_material_list);
+	//	}
+	//}
 
-		updateModel(Vector3D(-4, 2, -4 + 4 * i), m_b_material);
-		drawMesh(m_torus_mesh, m_b_material);
-
-		updateModel(Vector3D(0, 2, -4 + 4 * i), m_material);
-		drawMesh(m_suzanne_mesh, m_material);
+	for (int i = 0; i < 6; i++) {
+		for (int j = 0; j < 2; j++) {
+			m_material_list.clear();
+			m_material_list.push_back(m_box_material);
+			updateModel(Vector3D(-10 + 10 * i, 0, -7 + 7 * j), m_material_list);
+			drawMesh(m_box_mesh, m_material_list);
+			updateModel(Vector3D((-10 + 10 * i)-0.8f, 0, -7 + 7 * j), m_material_list);
+			drawMesh(m_box_mesh, m_material_list);
+		}
 	}
 
-	updateModel(Vector3D(0, 0, 0), m_b_material);
-	drawMesh(m_plane_mesh, m_b_material);
+	m_material_list.clear();
+	m_material_list.push_back(m_plane_material);
+	updateModel(Vector3D(0, 0, 0), m_material_list);
+	drawMesh(m_plane_mesh, m_material_list);
+
+
+	m_material_list.clear();
+	m_material_list.push_back(m_sky_material);
+	drawMesh(m_sky_sphere, m_material_list);
+
+	//for (int i = 0; i < 3; i++) {
+	//	updateModel(Vector3D(4, 2, -4 + 4 * i), m_earth_material);
+	//	drawMesh(m_sky_sphere, m_earth_material);
+
+	//	updateModel(Vector3D(-4, 2, -4 + 4 * i), m_b_material);
+	//	drawMesh(m_torus_mesh, m_b_material);
+
+	//	updateModel(Vector3D(0, 2, -4 + 4 * i), m_material);
+	//	drawMesh(m_suzanne_mesh, m_material);
+	//}
+
+	//updateModel(Vector3D(0, 0, 0), m_b_material);
+	//drawMesh(m_plane_mesh, m_b_material);
 
 
 	m_swap_chain->present(true);
@@ -120,12 +183,21 @@ void GameWindow::render()
 	m_delta_time = (m_old_delta) ? ((m_new_delta - m_old_delta) / 1000.0f) : 0;
 }
 
-void GameWindow::drawMesh(const MPtr& mesh, const MTPtr& material)
+void GameWindow::drawMesh(const MPtr& mesh, const std::vector<MTPtr>& material_list)
 {
-	GraphicsEngine::get()->setMaterial(material);
+
 	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->setVertexBuffer(mesh->getVertexBuffer());
 	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->setIndexBuffer(mesh->getIndexBuffer());
-	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->drawIndexedTriangleList(mesh->getIndexBuffer()->getSizeIndexList(), 0, 0);
+
+	for (size_t i = 0; i < mesh->getMaterialPlaceNum(); i++) {
+		if (i >= material_list.size()) 
+			break;
+
+		MaterialPlace material = mesh->getMaterialPlace(i);
+		GraphicsEngine::get()->setMaterial(material_list[i]);
+
+		GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->drawIndexedTriangleList(material.num, 0, material.start);
+	}
 }
 
 void GameWindow::updateCamera()
@@ -156,7 +228,7 @@ void GameWindow::updateCamera()
 	m_projection_camera.setPerspectiveView(1.57f, ((float)width / (float)height), 0.1f, 100.0f);
 }
 
-void GameWindow::updateModel(Vector3D pos, const MTPtr& material)
+void GameWindow::updateModel(Vector3D pos, const std::vector<MTPtr>& material_list)
 {
 	constant con;
 
@@ -176,7 +248,9 @@ void GameWindow::updateModel(Vector3D pos, const MTPtr& material)
 	con.m_light_radius = m_light_radius;
 
 	con.m_light_direction = m_light_rot.getZDirection();
-	material->setData(&con, sizeof(constant));
+	for (size_t i = 0; i < material_list.size(); i++) {
+		material_list[i]->setData(&con, sizeof(constant));
+	}
 }
 
 void GameWindow::updateSky()
@@ -193,9 +267,11 @@ void GameWindow::updateSky()
 
 void GameWindow::updateLight()
 {
-	m_light_rotaion_y += 1.57f * m_delta_time;
+	//m_light_rotaion_y += 1.57f * m_delta_time;
+	m_light_rotaion_y = 1;
 	float distance_origin = 3.0f;
-	m_light_pos = Vector4D(cos(m_light_rotaion_y) * distance_origin, 1.0f, sin(m_light_rotaion_y) * distance_origin, 1.0f);
+	//m_light_pos = Vector4D(cos(m_light_rotaion_y) * distance_origin, 1.0f, sin(m_light_rotaion_y) * distance_origin, 1.0f);
+	m_light_pos = Vector4D(180, 140, 70, 1.0f);
 }
 
 void GameWindow::onDestroy()
