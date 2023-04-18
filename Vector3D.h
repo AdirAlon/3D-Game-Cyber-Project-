@@ -1,6 +1,5 @@
 #pragma once
 
-
 class Vector3D
 {
 public:
@@ -16,6 +15,13 @@ public:
 	{
 	}
 
+	//Vector3D operator *(Matrix4x4 mat)
+	//{
+	//	return Vector3D(m_x * mat.m_matrix[0][0] + m_y * mat.m_matrix[1][0] + m_z * mat.m_matrix[2][0] + mat.m_matrix[3][0],
+	//		m_x * mat.m_matrix[0][1] + m_y * mat.m_matrix[1][1] + m_z * mat.m_matrix[2][1] + mat.m_matrix[3][1],
+	//		m_x * mat.m_matrix[0][2] + m_y * mat.m_matrix[1][2] + m_z * mat.m_matrix[2][2] + mat.m_matrix[3][2]);
+	//}
+
 	static Vector3D lerp(const Vector3D& start, const Vector3D& end, float delta)
 	{
 		Vector3D v;
@@ -29,6 +35,11 @@ public:
 	Vector3D operator *(float num)
 	{
 		return Vector3D(m_x * num, m_y * num, m_z * num);
+	}
+
+	Vector3D operator *(Vector3D vec)
+	{
+		return Vector3D(m_x * vec.m_x, m_y * vec.m_y, m_z * vec.m_z);
 	}
 
 	Vector3D operator +(Vector3D vec)

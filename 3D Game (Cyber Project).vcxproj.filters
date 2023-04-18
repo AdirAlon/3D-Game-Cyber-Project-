@@ -4,6 +4,9 @@
     <Filter Include="Game">
       <UniqueIdentifier>{0e7293c9-60c9-4903-8fef-50269c1617b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Shaders">
+      <UniqueIdentifier>{037eb342-bbae-4245-b4d3-1c6176def98d}</UniqueIdentifier>
+    </Filter>
     <Filter Include="GameEngine">
       <UniqueIdentifier>{8c48a1d0-da3c-47f9-9e0d-cada9c26833e}</UniqueIdentifier>
     </Filter>
@@ -12,12 +15,6 @@
     </Filter>
     <Filter Include="GameEngine\GraphicsEngine">
       <UniqueIdentifier>{a9cf0cd6-5376-4f4e-a6f9-742c9f6813c9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\Math">
-      <UniqueIdentifier>{ad985211-baf3-408a-9814-9d033ee209af}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\InputSystem">
-      <UniqueIdentifier>{ac9810b9-4c14-489c-bfd5-920ffb9dddad}</UniqueIdentifier>
     </Filter>
     <Filter Include="GameEngine\GraphicsEngine\Rendering">
       <UniqueIdentifier>{316d9b40-7496-417d-af48-6dc5624a1145}</UniqueIdentifier>
@@ -52,11 +49,14 @@
     <Filter Include="GameEngine\GraphicsEngine\Rendering\ResourceManager\MeshManager">
       <UniqueIdentifier>{ea63fd81-2ae5-4080-a5e8-edc3d90c08ce}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\Shaders">
-      <UniqueIdentifier>{037eb342-bbae-4245-b4d3-1c6176def98d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\GraphicsEngine\Material">
       <UniqueIdentifier>{d2b340b5-bd80-4544-bbe9-c1db5772a1da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Math">
+      <UniqueIdentifier>{ad985211-baf3-408a-9814-9d033ee209af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\InputSystem">
+      <UniqueIdentifier>{ac9810b9-4c14-489c-bfd5-920ffb9dddad}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
