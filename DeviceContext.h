@@ -20,7 +20,7 @@ public:
 	void setIndexBuffer(const IBPtr& index_buffer);
 	void drawIndexedTriangleList(UINT index_count, UINT start_vertex_index, UINT start_index_location);
 	~DeviceContext();
-private:
+public:
 	ID3D11DeviceContext* m_device_context;
 	RenderSystem* m_system = nullptr;
 private:

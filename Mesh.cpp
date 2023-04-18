@@ -28,7 +28,6 @@ Mesh::Mesh(const wchar_t* path): Resource(path)
 	if (!res)
 		throw std::exception("Mesh creation Failed");
 
-	std::vector<VMesh> v_list;
 	std::vector<unsigned int> i_list;
 	size_t lists_size = 0;
 	for (size_t i = 0; i < shapes.size(); i++)

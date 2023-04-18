@@ -1,7 +1,7 @@
 #pragma once
-#include <memory>
 #include "Vector3D.h"
 #include "Vector4D.h"
+#include <memory>
 
 class Matrix4x4
 {
@@ -149,7 +149,7 @@ public:
 
 	Vector3D getZDirection()
 	{
-		return Vector3D(m_matrix[2][0], m_matrix[2][1], m_matrix[2][2]);
+		return Vector3D(m_matrix[2][0], 0, m_matrix[2][2]);
 	}
 
 	Vector3D getXDirection()
@@ -170,6 +170,6 @@ public:
 	~Matrix4x4()
 	{
 	}
-private:
+public:
 	float m_matrix[4][4] = {};
 }; 

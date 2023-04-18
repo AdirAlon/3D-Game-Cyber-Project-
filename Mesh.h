@@ -2,6 +2,7 @@
 #include "Resource.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "VMesh.h"
 #include <vector>
 
 struct MaterialPlace
@@ -19,6 +20,7 @@ public:
 	const IBPtr& getIndexBuffer();
 	const MaterialPlace& getMaterialPlace(unsigned int place);
 	size_t getMaterialPlaceNum();
+	std::vector<VMesh> v_list;
 private:
 	VBPtr m_vb;
 	IBPtr m_ib;

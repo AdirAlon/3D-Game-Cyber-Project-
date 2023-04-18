@@ -1,8 +1,8 @@
 #pragma once
 #include "VertexShader.h"
 #include "PixelShader.h"
-#include <vector>
 #include "ConstantBuffer.h"
+#include <vector>
 
 enum CULL_MODE
 {

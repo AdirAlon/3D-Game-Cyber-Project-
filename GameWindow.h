@@ -20,9 +20,13 @@ public:
 	void render();
 	void drawMesh(const MPtr& mesh, const std::vector<MTPtr>& material_list);
 	void updateCamera();
-	void updateModel(Vector3D pos, const std::vector<MTPtr>& material_list);
+	void updateModel(MPtr mesh, Vector3D pos, const std::vector<MTPtr>& material_list);
 	void updateSky();
+	void updateBullet();
 	void updateLight();
+	Matrix4x4 m_light_rot;
+	Matrix4x4 transMat;
+	Matrix4x4 world;
 
 	// Inherited via Window
 	virtual void onCreate() override;
@@ -58,6 +62,7 @@ private:
 	MPtr m_sky_sphere;
 	MPtr m_house_mesh;
 	MPtr m_box_mesh;
+	MPtr m_bullet_mesh;
 	MTPtr m_material;
 	MTPtr m_box_material;
 	MTPtr m_sky_material;
@@ -66,6 +71,7 @@ private:
 	MTPtr m_brick_material;
 	MTPtr m_windows_material;
 	MTPtr m_wood_material;
+	
 
 
 private:
@@ -83,6 +89,7 @@ private:
 	Matrix4x4 m_projection_camera;
 	float m_forward = 0.0f;
 	float m_sideward = 0.0f;
+	float m_upward = 0.0f;
 	float speed = 0.2f;
 	float jump = 0.0f;
 	bool game_state = false;
@@ -90,6 +97,7 @@ private:
 	float m_light_radius = 1000.0f;
 	Vector4D m_light_pos;
 	std::vector<MTPtr> m_material_list;
+	float larlar = 0.0f;
 
 
 public:
