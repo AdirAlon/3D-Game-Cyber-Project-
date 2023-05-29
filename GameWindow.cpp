@@ -1,14 +1,92 @@
 #define NOMINMAX
+//#define _WINSOCKAPI_
+//#define WIN32_LEAN_AND_MEAN
 #include "GameWindow.h"
 #include "Vector3D.h"
 #include "Vector2D.h"
 #include "Matrix4x4.h"
 #include "InputSystem.h"
+#include <iostream>
 #include "Mesh.h"
 #include "VMesh.h"
 #include "SwapChain.h"
 #include <DirectXMath.h>
 #include <Windows.h>
+//#include <thread>
+//
+//#include <iostream>
+//#include <winsock2.h>
+//
+//#pragma comment(lib,"ws2_32.lib") 
+//#pragma warning(disable:4996) 
+//
+//#define SERVER "127.0.0.1"  // or "localhost" - ip address of UDP server
+//#define BUFLEN 1024  // max length of answer
+//#define PORT 27015  // the port on which to listen for incoming data
+//
+//int ConnectionStuff() {
+//	system("title UDP Client");
+//
+//	// initialise winsock
+//	WSADATA ws;
+//	printf("Initialising Winsock...\n");
+//	if (WSAStartup(MAKEWORD(2, 2), &ws) != 0)
+//	{
+//		printf("Failed. Error Code: %d", WSAGetLastError());
+//		return 1;
+//	}
+//	printf("Initialised.\n");
+//
+//	// create socket
+//	sockaddr_in server;
+//	int client_socket;
+//	if ((client_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == SOCKET_ERROR) // <<< UDP socket
+//	{
+//		printf("socket() failed with error code: %d", WSAGetLastError());
+//		return 2;
+//	}
+//
+//	// setup address structure
+//	memset((char*)&server, 0, sizeof(server));
+//	server.sin_family = AF_INET;
+//	server.sin_port = htons(PORT);
+//	server.sin_addr.S_un.S_addr = inet_addr(SERVER);
+//
+//	// start communication
+//	while (true)
+//	{
+//		char message[BUFLEN];
+//		printf("Sending message");
+//		std::string mess = "sent!";
+//		strcpy(message, mess.c_str());
+//
+//		// send the message
+//		if (sendto(client_socket, message, strlen(message), 0, (sockaddr*)&server, sizeof(sockaddr_in)) == SOCKET_ERROR)
+//		{
+//			printf("sendto() failed with error code: %d", WSAGetLastError());
+//			return 3;
+//		}
+//
+//		// receive a reply and print it
+//		// clear the answer by filling null, it might have previously received data
+//		char answer[BUFLEN] = {};
+//
+//		// try to receive some data, this is a blocking call
+//		int slen = sizeof(sockaddr_in);
+//		int answer_length;
+//		if (answer_length = recvfrom(client_socket, answer, BUFLEN, 0, (sockaddr*)&server, &slen) == SOCKET_ERROR)
+//		{
+//			printf("recvfrom() failed with error code: %d", WSAGetLastError());
+//			exit(0);
+//		}
+//
+//		std::cout << answer << "\n";
+//	}
+//
+//	closesocket(client_socket);
+//	WSACleanup();
+//
+//}
 
 struct vertex
 {
@@ -44,19 +122,21 @@ struct BoundingBox {
 std::vector<BoundingBox> boundingBoxList;
 BoundingBox boxBoundingBox;
 BoundingBox playerBoundingBox;
+BoundingBox enemyBoundingBox;
 BoundingBox planeBoundingBox;
 BoundingBox SkyBoundingBoxl;
 
-
+Vector4D playerDir = Vector4D();
 bool playerScale = false;
 std::vector<Vector4D> projectiles;
 std::vector<Matrix4x4> projectilesMatrix;
 std::vector<BoundingBox> projectilesBoundingBoxes;
 float projectileSpeed = 1.5f;
+Vector3D enemyPos = Vector3D(0,0,0);
 Matrix4x4 cam;
 float enemyHealth = 100;
 bool bullFlag = false;
-// Define a function to calculate the bounding box of a list of vertices
+// a function to calculate the bounding box of a list of vertices
 BoundingBox CalculateBoundingBox(const std::vector<Vector3D>& vertices, Vector3D& minPoint, Vector3D& maxPoint)
 {
 	// Initialize the minimum and maximum points to the first vertex position
@@ -166,6 +246,9 @@ void GameWindow::onCreate()
 	game_state = true;
 	InputSystem::get()->showCursor(false);
 
+	//std::thread thread(ConnectionStuff);
+	//thread.join();
+
 	m_cobble_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\grass.jpg");
 	m_wall_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\wall.jpg");
 	m_bricks_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\asteroid.jpg");
@@ -234,14 +317,22 @@ void GameWindow::onCreate()
 
 void GameWindow::onUpdate()
 {
+	std::cout << enemyPos.m_x + ',' + enemyPos.m_y + ',' + enemyPos.m_z << std::endl;
 	if(CheckBoundingBoxCollision(planeBoundingBox, playerBoundingBox) != NONE)
 		m_upward -= 0.05f;
 	else
 		m_upward = 0.0f;
 
 	for (int i = 0; i < projectilesBoundingBoxes.size(); i++) {
-		if (CheckBoundingBoxCollision(projectilesBoundingBoxes[i], boxBoundingBox) != NONE) {
-			enemyHealth -= 25;
+		if (projectiles[i].m_x > 50 || projectiles[i].m_x < -50 || projectiles[i].m_z > 50 || projectiles[i].m_z < -50) {
+			projectilesBoundingBoxes.erase(projectilesBoundingBoxes.begin() + i);
+			projectiles.erase(projectiles.begin() + i);
+			projectilesMatrix.erase(projectilesMatrix.begin() + i);
+		}
+		if (CheckBoundingBoxCollision(projectilesBoundingBoxes[i], enemyBoundingBox) != NONE) {
+			hit = true;
+			projMin = Vector3D(projectilesBoundingBoxes[i].minPoint.m_x, projectilesBoundingBoxes[i].minPoint.m_y, projectilesBoundingBoxes[i].minPoint.m_z);
+			projMax = Vector3D(projectilesBoundingBoxes[i].maxPoint.m_x, projectilesBoundingBoxes[i].maxPoint.m_y, projectilesBoundingBoxes[i].maxPoint.m_z);
 			projectilesBoundingBoxes.erase(projectilesBoundingBoxes.begin() + i);
 			projectiles.erase(projectiles.begin() + i);
 			projectilesMatrix.erase(projectilesMatrix.begin() + i);
@@ -275,13 +366,17 @@ void GameWindow::update()
 	updateSky();
 }
 
-Vector3D getTrasformedVertex(Vector3D vector, Matrix4x4 light_rot) {
+Vector4D getDirections() {
+	return playerDir;
+}
+
+Vector3D getTrasformedVertex(Vector3D vector, Matrix4x4 mat) {
 	// Define your world transformation matrix
 	DirectX::XMMATRIX worldMatrix = DirectX::XMMATRIX(
-		light_rot.m_matrix[0][0], light_rot.m_matrix[0][1], light_rot.m_matrix[0][2], light_rot.m_matrix[0][3],
-		light_rot.m_matrix[1][0], light_rot.m_matrix[1][1], light_rot.m_matrix[1][2], light_rot.m_matrix[1][3],
-		light_rot.m_matrix[2][0], light_rot.m_matrix[2][1], light_rot.m_matrix[2][2], light_rot.m_matrix[2][3],
-		light_rot.m_matrix[3][0], light_rot.m_matrix[3][1], light_rot.m_matrix[3][2], light_rot.m_matrix[3][3]);
+		mat.m_matrix[0][0], mat.m_matrix[0][1], mat.m_matrix[0][2], mat.m_matrix[0][3],
+		mat.m_matrix[1][0], mat.m_matrix[1][1], mat.m_matrix[1][2], mat.m_matrix[1][3],
+		mat.m_matrix[2][0], mat.m_matrix[2][1], mat.m_matrix[2][2], mat.m_matrix[2][3],
+		mat.m_matrix[3][0], mat.m_matrix[3][1], mat.m_matrix[3][2], mat.m_matrix[3][3]);
 	// Define your vertex
 	DirectX::XMFLOAT3 vertex = DirectX::XMFLOAT3(vector.m_x, vector.m_y, vector.m_z);
 
@@ -306,37 +401,13 @@ void GameWindow::render()
 
 	update();
 
-	//m_material_list.clear();
-	//m_material_list.push_back(m_barrel_material);
-	//m_material_list.push_back(m_brick_material);
-	//m_material_list.push_back(m_windows_material);
-	//m_material_list.push_back(m_wood_material);
-	//for (int i = 0; i < 3; i++) {
-	//	for (int j = 0; j < 3; j++) {
-	//		updateModel(Vector3D(-14.0f +14.0f * i, 0, -14.0f + 14.0f * j), m_material_list);
-	//		drawMesh(m_house_mesh, m_material_list);
-	//	}
-	//}
 
 	std::list<Vector3D> objectList;
-	//for (int i = 0; i < 6; i++) {
-	//	for (int j = 0; j < 2; j++) {
-	//		m_material_list.clear();
-	//		m_material_list.push_back(m_box_material);
-	//		Vector3D boxPos1 = Vector3D(-10 + 10 * i, 0, -7 + 7 * j);
-	//		objectList.push_back(boxPos1);
-	//		updateModel(boxPos1, m_material_list);
-	//		drawMesh(m_box_mesh, m_material_list);
-	//		Vector3D boxPos2 = Vector3D((-10 + 10 * i) - 0.8f, 0, -7 + 7 * j);
-	//		objectList.push_back(boxPos2);
-	//		updateModel(boxPos2, m_material_list);
-	//		drawMesh(m_box_mesh, m_material_list);
-	//	}
-	//}
+
 	std::vector<Vector3D> vertices;
 	m_material_list.clear();
 	m_material_list.push_back(m_plane_material);
-	Vector3D planePos = Vector3D(0, 0, 0);
+	Vector3D planePos = Vector3D(0, -1, 0);
 	objectList.push_back(planePos);
 	updateModel(m_plane_mesh, planePos, m_material_list);
 	for (int i = 0; i < m_plane_mesh.get()->v_list.size(); i++) {
@@ -351,7 +422,7 @@ void GameWindow::render()
 	if (enemyHealth > 0) {
 		m_material_list.clear();
 		m_material_list.push_back(m_box_material);
-		Vector3D boxPos = Vector3D(0, 0, 0);
+		Vector3D boxPos = Vector3D(0, -1, 0);
 		vertices.clear();
 		updateModel(m_box_mesh, boxPos, m_material_list);
 		for (int i = 0; i < m_box_mesh.get()->v_list.size(); i++) {
@@ -371,6 +442,8 @@ void GameWindow::render()
 	playerScale = 1;
 	m_material_list.clear();
 	m_material_list.push_back(m_material);
+	//if (m_world_camera.getTranslation().m_y < 1)
+	//	m_world_camera.setTranslation(Vector3D(m_world_camera.getTranslation().m_x, 1, m_world_camera.getTranslation().m_z));
 	Vector3D playerPos = Vector3D(m_world_camera.getTranslation().m_x - larlar, m_world_camera.getTranslation().m_y, m_world_camera.getTranslation().m_z);
 	vertices.clear();
 	updateModel(m_sky_sphere, playerPos, m_material_list);
@@ -382,6 +455,21 @@ void GameWindow::render()
 	Vector3D min1, max1;
 	drawMesh(m_sky_sphere, m_material_list);
 	playerBoundingBox = CalculateBoundingBox(vertices, min1, max1);
+	playerMax = playerBoundingBox.maxPoint;
+	playerMin = playerBoundingBox.minPoint;
+
+	m_material_list.clear();
+	m_material_list.push_back(m_material);
+	vertices.clear();
+	updateModel(m_sky_sphere, enemyPos, m_material_list);
+	for (int i = 0; i < m_sky_sphere.get()->v_list.size(); i++) {
+		Vector3D a = Vector3D(m_sky_sphere.get()->v_list[i].m_pos.m_x, m_sky_sphere.get()->v_list[i].m_pos.m_y, m_sky_sphere.get()->v_list[i].m_pos.m_z);
+		a = getTrasformedVertex(a, transMat);
+		vertices.push_back(a);
+	}
+	Vector3D eneMin, eneMax;
+	drawMesh(m_sky_sphere, m_material_list);
+	enemyBoundingBox = CalculateBoundingBox(vertices, eneMin, eneMax);
 	
 	bullFlag = true;
 	for (int i = 0; i < projectiles.size(); i++)
@@ -411,20 +499,6 @@ void GameWindow::render()
 	m_material_list.push_back(m_sky_material);
 	drawMesh(m_sky_sphere, m_material_list);
 
-	//for (int i = 0; i < 3; i++) {
-	//	updateModel(Vector3D(4, 2, -4 + 4 * i), m_earth_material);
-	//	drawMesh(m_sky_sphere, m_earth_material);
-
-	//	updateModel(Vector3D(-4, 2, -4 + 4 * i), m_b_material);
-	//	drawMesh(m_torus_mesh, m_b_material);
-
-	//	updateModel(Vector3D(0, 2, -4 + 4 * i), m_material);
-	//	drawMesh(m_suzanne_mesh, m_material);
-	//}
-
-	//updateModel(Vector3D(0, 0, 0), m_b_material);
-	//drawMesh(m_plane_mesh, m_b_material);
-
 
 	m_swap_chain->present(true);
 
@@ -434,74 +508,7 @@ void GameWindow::render()
 
 	// Assume that the bounding box has already been calculated
 
-// Define the vertices of the bounding box
-	DirectX::XMFLOAT3 vertices1[] = {
-		{playerBoundingBox.minPoint.m_x, playerBoundingBox.minPoint.m_y, playerBoundingBox.minPoint.m_z},
-		{playerBoundingBox.maxPoint.m_x, playerBoundingBox.minPoint.m_y, playerBoundingBox.minPoint.m_z},
-		{playerBoundingBox.maxPoint.m_x, playerBoundingBox.maxPoint.m_y, playerBoundingBox.minPoint.m_z},
-		{playerBoundingBox.minPoint.m_x, playerBoundingBox.maxPoint.m_y, playerBoundingBox.minPoint.m_z},
-		{playerBoundingBox.minPoint.m_x, playerBoundingBox.minPoint.m_y, playerBoundingBox.maxPoint.m_z},
-		{playerBoundingBox.maxPoint.m_x, playerBoundingBox.minPoint.m_y, playerBoundingBox.maxPoint.m_z},
-		{playerBoundingBox.maxPoint.m_x, playerBoundingBox.maxPoint.m_y, playerBoundingBox.maxPoint.m_z},
-		{playerBoundingBox.minPoint.m_x, playerBoundingBox.maxPoint.m_y, playerBoundingBox.maxPoint.m_z},
-	};
-
-	// Define the indices of the bounding box
-	UINT indices[] = {
-		0, 1, 1, 2, 2, 3, 3, 0,
-		4, 5, 5, 6, 6, 7, 7, 4,
-		0, 4, 1, 5, 2, 6, 3, 7,
-	};
-
-	// Create the vertex buffer
-	D3D11_BUFFER_DESC vertexBufferDesc;
-	ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
-	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(Vertex) * 8;
-	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.CPUAccessFlags = 0;
-	vertexBufferDesc.MiscFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA vertexData;
-	ZeroMemory(&vertexData, sizeof(vertexData));
-	vertexData.pSysMem = vertices1;
-
-	ID3D11Buffer* vertexBuffer = nullptr;
-	HRESULT hr = GraphicsEngine::get()->getRenderSystem()->m_d3d_device->CreateBuffer(&vertexBufferDesc, &vertexData, &vertexBuffer);
-
-	// Create the index buffer
-	D3D11_BUFFER_DESC indexBufferDesc;
-	ZeroMemory(&indexBufferDesc, sizeof(indexBufferDesc));
-	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(UINT) * 24;
-	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexBufferDesc.CPUAccessFlags = 0;
-	indexBufferDesc.MiscFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA indexData;
-	ZeroMemory(&indexData, sizeof(indexData));
-	indexData.pSysMem = indices;
-
-	ID3D11Buffer* indexBuffer = nullptr;
-	hr = GraphicsEngine::get()->getRenderSystem()->m_d3d_device->CreateBuffer(&indexBufferDesc, &indexData, &indexBuffer);
-
-	// Set the vertex buffer
-	UINT stride = sizeof(Vertex);
-	UINT offset = 0;
-	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->m_device_context->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
-
-	// Set the index buffer
-	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->m_device_context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-	// Set the primitive topology
-	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->m_device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-
-	// Draw the bounding box
-	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->m_device_context->DrawIndexed(24, 0, 0);
-
-	// Clean up
-	vertexBuffer->Release();
-	indexBuffer->Release();
+// Define the ver
 
 }
 
@@ -532,7 +539,7 @@ void GameWindow::updateCamera()
 	temp.setIdentity();
 	temp.setRotaionY(m_rotaion_y);
 	camera *= temp; 
-	Vector3D new_pos = m_world_camera.getTranslation() + camera.getXDirection() * (m_sideward * speed);
+	new_pos = m_world_camera.getTranslation() + camera.getXDirection() * (m_sideward * speed);
 	new_pos = new_pos + camera.getZDirection() * (m_forward * speed);
 	new_pos = new_pos + camera.getYDirection() * (m_upward * speed);
 	cam = camera;
@@ -600,6 +607,11 @@ void GameWindow::updateLight()
 	m_light_pos = Vector4D(180, 140, 70, 1.0f);
 }
 
+void GameWindow::setEnemyPos(int x, int y, int z)
+{
+	enemyPos = Vector3D(x, y, z);
+}
+
 void GameWindow::onDestroy()
 {
 	Window::onDestroy();
@@ -631,9 +643,12 @@ void GameWindow::onKeyDown(int key)
 		if(CheckBoundingBoxCollision(playerBoundingBox, boxBoundingBox) == FRONT) {
 			//m_rotaion_x += 1.9f * m_delta_time;
 			m_forward = 0.0f;
+			playerDir.m_x = m_forward;
 		}
-		else
+		else {
 			m_forward = 1.0f;
+			playerDir.m_x = m_forward;
+		}
 	}
 
 	else if (key == 'S')
@@ -641,9 +656,12 @@ void GameWindow::onKeyDown(int key)
 		if (CheckBoundingBoxCollision(playerBoundingBox, boxBoundingBox) == BACK) {
 			//m_rotaion_x -= 1.9f * m_delta_time;
 			m_forward = 0.0f;
+			playerDir.m_x = m_forward;
 		}
-		else
+		else {
 			m_forward = -1.0f;
+			playerDir.m_x = m_forward;
+		}
 	}
 
 	else if (key == 'A')
@@ -651,9 +669,12 @@ void GameWindow::onKeyDown(int key)
 		if (CheckBoundingBoxCollision(boxBoundingBox, playerBoundingBox) == LEFT) {
 			//m_rotaion_x += 1.9f * m_delta_time;
 			m_sideward = 0.0f;
+			playerDir.m_z = m_sideward;
 		}
-		else
+		else {
 			m_sideward = -1.0f;
+			playerDir.m_z = m_sideward;
+		}
 	}
 
 	else if (key == 'D')
@@ -661,14 +682,18 @@ void GameWindow::onKeyDown(int key)
 		if (CheckBoundingBoxCollision(boxBoundingBox, playerBoundingBox) == RIGHT) {
 			//m_rotaion_x += 1.9f * m_delta_time;
 			m_sideward = 0.0f;
+			playerDir.m_z = m_sideward;
 		}
-		else
+		else {
 			m_sideward = 1.0f;
+			playerDir.m_z = m_sideward;
+		}
 	}
 
 	else if (key == 16)
 	{
 		speed = 3.0f;
+		playerDir.m_w = speed;
 	}
 
 	//else if (key == 32)
@@ -722,16 +747,20 @@ void GameWindow::onKeyUp(int key)
 	}
 
 
-	else if (key == 32)
-	{
-		if(m_upward == 0.0f)
-			m_upward = 0.5f;
-		else {
-			if (m_upward == -1.0f)
-				m_upward = 0.0f;
-			//m_upward = -1.0f;
-		}
-	}
+	//else if (key == 32)
+	//{
+	//	if (m_upward == 0.0f) {
+	//		m_upward = 0.5f;
+	//		playerDir.m_y = m_upward;
+	//	}
+	//	else {
+	//		if (m_upward == -1.0f) {
+	//			m_upward = 0.0f;
+	//			playerDir.m_y = m_upward;
+	//		}
+	//		//m_upward = -1.0f;
+	//	}
+	//}
 
 }
 
