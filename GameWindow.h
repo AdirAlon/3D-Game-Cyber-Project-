@@ -24,9 +24,21 @@ public:
 	void updateSky();
 	void updateBullet();
 	void updateLight();
+	void setEnemyPos(int x, int y, int z);
+	Vector4D getDirections();
+	Vector3D new_pos;
+	Vector3D playerMin;
+	Vector3D playerMax;
+	Vector3D projMin;
+	Vector3D projMax;
 	Matrix4x4 m_light_rot;
 	Matrix4x4 transMat;
 	Matrix4x4 world;
+	bool hit = false;
+	float m_forward = 0.0f;
+	float m_sideward = 0.0f;
+	float m_upward = 0.0f;
+	float speed = 0.2f;
 
 	// Inherited via Window
 	virtual void onCreate() override;
@@ -87,10 +99,6 @@ private:
 	Matrix4x4 m_world_camera;
 	Matrix4x4 m_view_camera;
 	Matrix4x4 m_projection_camera;
-	float m_forward = 0.0f;
-	float m_sideward = 0.0f;
-	float m_upward = 0.0f;
-	float speed = 0.2f;
 	float jump = 0.0f;
 	bool game_state = false;
 	bool fullscreen = false;
